@@ -1,5 +1,9 @@
 package hello.core.member;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class MemberServiceImpl implements MemberService {
 
     // 이제는 설계 변경으로 MemberServiceImpl은 MemoryMemberRepository를 의존하지 않는다.
@@ -10,6 +14,13 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
 
+    @Autowired  // ac.getBean(MemberRepository.class)
+    // 자동으로 의존관계를 주입 해준다.
+    // MemberRepository 타입에 맞는 memberRepository을 주입 해준다.
+
+    // 생성자에 @Autowired를 지정하면, 스프링 컨테이너가 자동으로 해당 스프링 빈을 찾아서 주입힌다.
+    // 이때 기본 조회 전략은 타입이 같은 빈을 찾아서 주입한다.
+    // MemoryMemberRepository는 MemberRepository의 자식 객체이므로 타입이 동일
     public MemberServiceImpl(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
@@ -23,5 +34,10 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Member findMember(Long memberId) {
         return memberRepository.findById(memberId);
+    }
+
+    // 테스트 용도
+    public MemberRepository getMemberRepository() {
+        return memberRepository;
     }
 }

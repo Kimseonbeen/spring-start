@@ -42,16 +42,48 @@ public class AppConfig {
     // 스프링 빈은 @Bean이 붙은 메서드의 명을 스프링 빈의 이름으로 사용한다.
 
 
+    // memberService()
+    // @Bean memberService -> new MemoryMemberRepository()
+
+    // orderService()
+    // @Bean orderService -> new MemoryMemberRepository()
+
+    // 이러면 singleton이 깨지는거 아닌가 ?
+    // 테스트 결과 3개 MemoryMemberRepository가 모두 같은 인스턴스를 갖는다
+
+    // 우리의 의도
+    // call AppConfig.memberService
+    // call AppConfig.memberRepository
+    // call AppConfig.memberRepository
+    // call AppConfig.orderService
+    // call AppConfig.memberRepository
+
+    // 테스트 결과 ConfigurationSingletoneTest
+    // call AppConfig.memberService
+    // call AppConfig.memberRepository
+    // call AppConfig.orderService
+
+    // 실제 스프링에 등록되는건 AppConfig가 아니라 AppConfig를 상속받은 AppConfig@CGLIB
+    // @Bean이 붙은 메서드 마다 이미 스프링 빈이 존재하면 존재하는 빈을 반환하고, 스프링 빈이 없으면
+    // 생성해서 스프링 빈으로 등록하고 반환하는 코드가 동적으로 만들어진다.
+    // 이 덕분에 싱글톤이 보장되는것
+    
+    // @Configuration 어노테이션을 사용하지 않는다면?
+    // @Bean만 사용해도 스프링 빈으로 등록되지만, 싱글톤을 보장하지 않는다.
+    // AppConfig를 상속받은 AppConfig@CGLIB 클래스가 생기지도 않고 스프링에 등록 되지도 않음
     @Bean
     public MemberService memberService() {
+        System.out.println("call AppConfig.memberService");
         return new MemberServiceImpl(memberRepository());
     }
     @Bean
     public MemberRepository memberRepository() {
+        System.out.println("call AppConfig.memberRepository");
         return new MemoryMemberRepository();
     }
     @Bean
     public OrderService orderService() {
+        System.out.println("call AppConfig.orderService");
         return new OrderServiceImpl(memberRepository(), discountPolicy());
     }
     @Bean
