@@ -1,17 +1,26 @@
 package hello.core.order;
 
+import hello.core.annotation.MainDiscountPolicy;
 import hello.core.discount.DiscountPolicy;
 import hello.core.discount.FixDiscountPolicy;
 import hello.core.discount.RateDiscountPolicy;
 import hello.core.member.Member;
 import hello.core.member.MemberRepository;
 import hello.core.member.MemoryMemberRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
+
 public class OrderServiceImpl implements OrderService {
 
+    // @RequiredArgsConstructor 란?
+    // 현재 내 객체 내의 final이 붙은 필드를 모아서 생성자를 자동으로 만들어준다. ctrl + f12로 확인가능
+
+    // 생성자 주입을 사용하면 필드에 'final' 키워드를 사용가능
+    // 그래서 생성자에서 혹시라도 값이 설정되지 않는 오류를 컴파일 시점에서 막아준다.
     private final MemberRepository memberRepository;
     private final DiscountPolicy discountPolicy;
 
@@ -44,8 +53,20 @@ public class OrderServiceImpl implements OrderService {
     // 만약, 생성자가 하나 일경우 @Autowired를 생략해도 생성자 주입이 일어난다.
     // 생성자 주입은 수정자 주입과는 다르게 빈이 생성과 동시에 주입이 일어남
     // 수정자 주입은 빈이 생성되고 그 뒤에 일어난다.
+    // Lombok을 사용하면 @RequiredArgsConstructor로 해결가능
+
+    // 문제 !
+    // 조회 빈이 2개 이상 일 시
+    // @Qualifier는 추가 구분자를 붙여주는 방법이다. 주입 시 추가적인 방법을 제공하는 것이지
+    // 빈 이름을 변경하는것은 아니다 !!
+    // ex ) @Qualifier("mainDiscountPolicy")
+
+    // 우선순위 !
+    // @Primary는 기본값 처럼 동작하는 것이고 @Qualifier는 매우 상세하게 동작하는 것이다.
+    // 스프링은 자동보다는 수동이, 넓은 범위 보다는 좁은 범위의 선택권이 우선 순위가 높다
+    // 따라서 여기서도 @Qualifierrk 우선권이 높다.. !
     @Autowired
-    public OrderServiceImpl(MemberRepository memberRepository, DiscountPolicy discountPolicy) {
+    public OrderServiceImpl(MemberRepository memberRepository, @MainDiscountPolicy DiscountPolicy discountPolicy) {
         System.out.println("OrderServiceImpl.OrderServiceImpl");
         this.memberRepository = memberRepository;
         this.discountPolicy = discountPolicy;
